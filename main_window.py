@@ -38,7 +38,7 @@ def update(window, com_socket, text1, text2):
 	"""
 	if not runtime_info["ls_connected"]:
 		#try connecting to ls
-		connection_ok = con.ls_connect(com_socket, server_found, window)
+		con.ls_connect(com_socket, server_found, window)
 	else:
 		#is_connected
 		if runtime_info["notes"]:
@@ -49,7 +49,7 @@ def update(window, com_socket, text1, text2):
 			
 			if isinstance(new_index, bool):
 				#Connection error
-				test_connection(com_socket)
+				com_socket = test_connection(com_socket, window, text1, text2)
 			else:
 				#index retrieved succesfully
 				if new_index == -1:
@@ -61,7 +61,12 @@ def update(window, com_socket, text1, text2):
 						set_title_notes(window, 0)
 				else:
 					#timer is running
-					runtime_info["timer_running"] = True
+					if not runtime_info["timer_running"]:
+						runtime_info["timer_running"] = True
+						
+						#special case to fix scrolling
+						if runtime_info["active_split"] == 0:
+							runtime_info["active_split"] = -1
 					
 					if not runtime_info["active_split"] == new_index:
 						#new split, need to update
@@ -77,35 +82,38 @@ def update(window, com_socket, text1, text2):
 						else:
 							#connection error
 							set_title_notes(window, new_index)
-							test_connection(com_socket)
+							com_socket = test_connection(com_socket, window, text1, text2)
 							
 						runtime_info["active_split"] = new_index
 
 		else:
 			#notes not yet loaded
-			if not con.check_connection(com_socket):
-				#connection lost
-				runtime_info["ls_connected"] = False
-				update_icon(False, window)
-				com_socket = con.init_socket()
-			
+			com_socket = test_connection(com_socket, window, text1, text2)
+				
 	
 	
 	#self looping
 	window.after(int(config.POLLING_TIME * 1000), update, window, com_socket, text1, text2)					
 	
 	
-def test_connection(com_socket):
+def test_connection(com_socket, window, text1, text2):
 	if con.check_connection(com_socket):
-		return True
+		return com_socket
 	else:
-		reset_connection(com_socket)
-		return False
+		return reset_connection(com_socket, window, text1, text2)
 
 
-def reset_connection(com_socket):
+def reset_connection(com_socket, window, text1, text2):
+	if runtime_info["timer_running"]:
+		runtime_info["timer_running"] = False
+		runtime_info["active_split"] = -1
+		
+		update_notes(window, text1, text2, -1)
+		set_title_notes(window, 0)
+	
 	runtime_info["ls_connected"] = False
-	com_socket = con.init_socket()
+	update_icon(False, window)
+	return con.init_socket()
 	
 
 def server_found(window):

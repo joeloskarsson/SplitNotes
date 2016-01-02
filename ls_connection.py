@@ -11,7 +11,7 @@ def ls_connect(ls_socket, call_func, window):
 	"""Connects given socket to the livesplit server."""
 	con_thread = Thread(target=try_connection, args=(ls_socket, call_func, window))
 	con_thread.start()
-		
+	
 		
 def init_socket():
 	"""Returns a fresh socket"""
@@ -31,9 +31,9 @@ def try_connection(ls_socket, call_func, window):
 		
 	call_func(window)
 	
-def close_socket(socket):
+def close_socket(com_socket):
 	"""Closes given socket."""
-	socket.close()
+	com_socket.close()
 
 def check_connection(ls_socket):
 	"""
