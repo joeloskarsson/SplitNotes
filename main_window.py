@@ -57,8 +57,7 @@ def update(window, com_socket, text1, text2):
 					if runtime_info["timer_running"]:
 						runtime_info["timer_running"] = False
 						runtime_info["active_split"] = new_index
-						update_notes(window, text1, text2, new_index)
-						set_title_notes(window, 0)
+						update_GUI(window, com_socket, text1, text2)
 				else:
 					#timer is running
 					if not runtime_info["timer_running"]:
@@ -70,22 +69,9 @@ def update(window, com_socket, text1, text2):
 					
 					if not runtime_info["active_split"] == new_index:
 						#new split, need to update
-					
-						#update notes
-						update_notes(window, text1, text2, new_index)
-						
-						#set new window title
-						new_split = con.get_split_name(com_socket)
-						
-						if new_split:
-							set_title_notes(window, new_index, new_split)
-						else:
-							#connection error
-							set_title_notes(window, new_index)
-							com_socket = test_connection(com_socket, window, text1, text2)
-							
 						runtime_info["active_split"] = new_index
-
+						
+						update_GUI(window, com_socket, text1, text2)					
 		else:
 			#notes not yet loaded
 			com_socket = test_connection(com_socket, window, text1, text2)
@@ -97,7 +83,11 @@ def update(window, com_socket, text1, text2):
 
 
 def	update_GUI(window, com_socket, text1, text2):
-	#TODO implemement this function
+	"""
+	Updates all graphics according to current runtime_info.
+	Sets window title and Text-box content.
+	Does NOT set window icon.
+	"""
 	index = runtime_info["active_split"]
 	
 	if index == -1:
@@ -108,12 +98,20 @@ def	update_GUI(window, com_socket, text1, text2):
 		split_name = con.get_split_name(com_socket)
 	else:
 		split_name = False
-		
-	update_notes(window, text1, text2, index)
-	set_title_notes(window, index, split_name)
+	
+	if runtime_info["notes"]:
+		set_title_notes(window, index, split_name)
+		update_notes(window, text1, text2, index)
+	else:
+		update_title(config.DEFAULT_WINDOW["TITLE"], window)
 	
 	
 def test_connection(com_socket, window, text1, text2):
+	"""
+	Runs a connection test to ls using given socket.
+	If test is unsuccessful, resets connection.
+	Returns a socket that should be used for communication with ls.
+	"""
 	if con.check_connection(com_socket):
 		return com_socket
 	else:
@@ -121,15 +119,22 @@ def test_connection(com_socket, window, text1, text2):
 
 
 def reset_connection(com_socket, window, text1, text2):
+	"""
+	Resets all variables and closes given socket.
+	Updates GUI to respond to connection loss.
+	Returns a fresh socket that can be used to connect to ls.
+	"""
 	if runtime_info["timer_running"]:
 		runtime_info["timer_running"] = False
 		runtime_info["active_split"] = -1
-		
-		update_notes(window, text1, text2, -1)
-		set_title_notes(window, 0)
 	
 	runtime_info["ls_connected"] = False
+	
 	update_icon(False, window)
+	update_GUI(window, com_socket, text1, text2)
+	
+	#Close old and return a fresh socket
+	con.close_socket(com_socket)
 	return con.init_socket()
 	
 
@@ -206,12 +211,12 @@ def menu_change_layout(window, box1, box2, popup):
 		popup.entryconfig(0, label=config.MENU_OPTIONS["SINGLE"])
 
 	
-def menu_load_notes(window, text1, text2):
+def menu_load_notes(window, text1, text2, com_socket):
 	"""Menu selected load notes option."""
-	load_notes(window, text1, text2)
+	load_notes(window, text1, text2, com_socket)
 		
 		
-def load_notes(window, text1, text2):
+def load_notes(window, text1, text2, com_socket):
 	"""
 	Prompts user to select notes and then tries to load these into the UI.
 	"""
@@ -229,15 +234,8 @@ def load_notes(window, text1, text2):
 			if not runtime_info["timer_running"]:
 				runtime_info["active_split"] = -1
 				
-			update_notes(window, text1, text2, runtime_info["active_split"])
+			update_GUI(window, com_socket, text1, text2)
 			
-			#Make sure right number is displayed after notes have been loaded.
-			if runtime_info["active_split"] == -1:
-				disp_index = 0
-			else:
-				disp_index = runtime_info["active_split"]
-				
-			set_title_notes(window, disp_index)
 		else:
 			show_info(config.ERRORS["NOTES_EMPTY"], True)
 
@@ -284,17 +282,17 @@ def update_notes(window, text1, text2, index):
 	text2.config(state=tkinter.DISABLED)
 
 		
-def right_arrow(window, text1, text2):
+def right_arrow(window, com_socket, text1, text2):
 	"""Event handler for right arrow key."""
-	change_preview(window, text1, text2, 1)
+	change_preview(window, com_socket, text1, text2, 1)
 	
 	
-def left_arrow(window, text1, text2):
+def left_arrow(window, com_socket, text1, text2):
 	"""Event handler for left arrow key."""
-	change_preview(window, text1, text2, -1)
+	change_preview(window, com_socket, text1, text2, -1)
 
 
-def change_preview(window, text1, text2, move):
+def change_preview(window, com_socket, text1, text2, move):
 	"""move is either 1 for next or -1 for previous."""
 	if runtime_info["notes"] and (not runtime_info["timer_running"]):
 		max_index = (len(runtime_info["notes"]) - 1)
@@ -308,12 +306,9 @@ def change_preview(window, text1, text2, move):
 		if index > max_index:
 			index = max_index
 		
-		update_notes(window, text1, text2, index)
 		runtime_info["active_split"] = index
 		
-		if index < 0:
-			index = 0
-		set_title_notes(window, index)
+		update_GUI(window, com_socket, text1, text2)
 	
 def set_title_notes(window, index, split_name = False):
 	"""
@@ -334,6 +329,9 @@ def set_title_notes(window, index, split_name = False):
 	
 def init_UI(root):
 	"""Draws default UI and creates event bindings."""
+	
+	#Create communication socket
+	com_socket = con.init_socket()
 	
 	#Graphical components
 	root.geometry(str(config.DEFAULT_WINDOW["WIDTH"]) + "x" + str(config.DEFAULT_WINDOW["HEIGHT"]))
@@ -381,7 +379,7 @@ def init_UI(root):
 					) #Needs to be at index 0
 	popup.add_command(
 					label=config.MENU_OPTIONS["LOAD"], 
-					command=(lambda: menu_load_notes(root, text1, text2))
+					command=(lambda: menu_load_notes(root, text1, text2, com_socket))
 					)
 	
 	
@@ -392,11 +390,10 @@ def init_UI(root):
 	#Event binds
 	root.bind("<Configure>", (lambda e: adjust_content(root, box1, box2)))
 	root.bind("<Button-3>", (lambda e: show_popup(e, popup)))
-	root.bind("<Right>", (lambda e: right_arrow(root, text1, text2)))
-	root.bind("<Left>", (lambda e: left_arrow(root, text1, text2)))
+	root.bind("<Right>", (lambda e: right_arrow(root, com_socket, text1, text2)))
+	root.bind("<Left>", (lambda e: left_arrow(root, com_socket, text1, text2)))
 	
 	#call update loop
-	com_socket = con.init_socket()
 	update(root, com_socket, text1, text2)
 	
 
