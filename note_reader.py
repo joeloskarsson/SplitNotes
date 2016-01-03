@@ -114,7 +114,7 @@ def select_file():
 	Otherwise returns absolute path to selected file.
 	"""
 	
-	file = file_dia.askopenfilename()
+	file = file_dia.askopenfilename(filetypes=config.TEXT_FILES)
 	
 	if file:
 		return file

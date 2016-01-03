@@ -1,5 +1,6 @@
 import tkinter
 from tkinter import messagebox
+from tkinter import font
 
 import socket
 import os
@@ -14,7 +15,8 @@ runtime_info = {
 				"icon_active": False,
 				"active_split": -1,
 				"notes": [],
-				"double_layout": False
+				"double_layout": False,
+				"big_font": False
 				}
 
 root = tkinter.Tk()
@@ -327,6 +329,25 @@ def set_title_notes(window, index, split_name = False):
 	
 	update_title(title, window)
 	
+	
+def	menu_font_size(text_font, menu):
+	if runtime_info["big_font"]:
+		runtime_info["big_font"] = False
+		menu.entryconfig(1, label=config.MENU_OPTIONS["BIG"])
+	else:
+		runtime_info["big_font"] = True
+		menu.entryconfig(1, label=config.MENU_OPTIONS["SMALL"])
+		
+	update_font_size(text_font)
+	
+def update_font_size(text_font):
+	if runtime_info["big_font"]:
+		font_size = config.FONT["BIG"]
+	else:
+		font_size = config.FONT["SMALL"]
+		
+	text_font.config(size=font_size)
+
 def init_UI(root):
 	"""Draws default UI and creates event bindings."""
 	
@@ -349,7 +370,8 @@ def init_UI(root):
 	text1 = tkinter.Text(
 						box1, 
 						yscrollcommand=scroll1.set, 
-						wrap=tkinter.WORD
+						wrap=tkinter.WORD,
+						cursor="arrow"
 						)
 	text1.insert(tkinter.END, config.DEFAULT_MSG)
 	text1.config(state=tkinter.DISABLED)
@@ -358,7 +380,8 @@ def init_UI(root):
 	text2 = tkinter.Text(
 						box2, 
 						yscrollcommand=scroll2.set, 
-						wrap=tkinter.WORD
+						wrap=tkinter.WORD,
+						cursor="arrow"
 						)
 	text2.insert(tkinter.END, config.DEFAULT_MSG)
 	text2.config(state=tkinter.DISABLED)
@@ -366,6 +389,16 @@ def init_UI(root):
 
 	scroll1.config(command=text1.yview)
 	scroll2.config(command=text2.yview)
+	
+	#Set font and color for text
+	text_font = font.Font(
+						family=config.FONT["NAME"], 
+						size=config.FONT["SMALL"]
+						)
+	text1.config(font=text_font)
+	text2.config(font=text_font)
+	text1.config(fg=config.COLOR["TEXT"], bg=config.COLOR["TEXT_BG"])
+	text2.config(fg=config.COLOR["TEXT"], bg=config.COLOR["TEXT_BG"])
 	
 	set_single_layout(root, box1, box2)
 	
@@ -377,6 +410,12 @@ def init_UI(root):
 							lambda: menu_change_layout(root, box1, box2, popup)
 							)
 					) #Needs to be at index 0
+	popup.add_command(
+					label=config.MENU_OPTIONS["BIG"], 
+					command=(
+							lambda: menu_font_size(text_font, popup)
+							)
+					) #Needs to be at index 1
 	popup.add_command(
 					label=config.MENU_OPTIONS["LOAD"], 
 					command=(lambda: menu_load_notes(root, text1, text2, com_socket))
