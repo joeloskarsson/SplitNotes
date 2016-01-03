@@ -17,7 +17,7 @@ LS_COMMANDS = {
 }
 
 #Default Window Size
-DEFAULT_WINDOW = {"WIDTH": 200, "HEIGHT": 500, "TITLE": "SplitNotes"}
+DEFAULT_WINDOW = {"WIDTH": 400, "HEIGHT": 300, "TITLE": "SplitNotes"}
 
 #Color Scheme
 COLOR_SCHEME = {}

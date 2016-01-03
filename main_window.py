@@ -93,7 +93,24 @@ def update(window, com_socket, text1, text2):
 	
 	
 	#self looping
-	window.after(int(config.POLLING_TIME * 1000), update, window, com_socket, text1, text2)					
+	window.after(int(config.POLLING_TIME * 1000), update, window, com_socket, text1, text2)
+
+
+def	update_GUI(window, com_socket, text1, text2):
+	#TODO implemement this function
+	index = runtime_info["active_split"]
+	
+	if index == -1:
+		index = 0
+	
+	if runtime_info["timer_running"]:
+		#Does not test connection if it fails
+		split_name = con.get_split_name(com_socket)
+	else:
+		split_name = False
+		
+	update_notes(window, text1, text2, index)
+	set_title_notes(window, index, split_name)
 	
 	
 def test_connection(com_socket, window, text1, text2):
@@ -208,9 +225,19 @@ def load_notes(window, text1, text2):
 			
 			split_c = len(notes)
 			show_info(("Notes Loaded", ("Loaded notes with " + str(split_c) + " splits.")))
-
+			
+			if not runtime_info["timer_running"]:
+				runtime_info["active_split"] = -1
+				
 			update_notes(window, text1, text2, runtime_info["active_split"])
-			set_title_notes(window, 0, split_name = False)
+			
+			#Make sure right number is displayed after notes have been loaded.
+			if runtime_info["active_split"] == -1:
+				disp_index = 0
+			else:
+				disp_index = runtime_info["active_split"]
+				
+			set_title_notes(window, disp_index)
 		else:
 			show_info(config.ERRORS["NOTES_EMPTY"], True)
 
