@@ -4,6 +4,7 @@ from tkinter import font
 
 import socket
 import os
+import sys
 
 import config
 import ls_connection as con
@@ -22,12 +23,12 @@ runtime_info = {
 root = tkinter.Tk()
 
 red_path= os.path.join(
-					str(os.path.dirname(os.path.realpath(__file__))), 
+					str(os.path.dirname(os.path.realpath(sys.argv[0]))), 
 					config.ICON_FOLDER, 
 					config.ICONS["RED"]
 					)
 green_path= os.path.join(
-					str(os.path.dirname(os.path.realpath(__file__))), 
+					str(os.path.dirname(os.path.realpath(sys.argv[0]))), 
 					config.ICON_FOLDER, 
 					config.ICONS["GREEN"]
 					)
