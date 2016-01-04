@@ -11,7 +11,7 @@ Splitnotes automatically shows notes for the split you are currently on.
 
 ## How To Use  
 **Connect to LiveSplit**  
-1. Launch SplitNotes
+1. Launch Splitnotes
 2. Launch LiveSplit
 3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.
 4. In LiveSplit, select "Control" -> "Start Server".
@@ -37,7 +37,7 @@ Example:
 >Also som notes for split 3.  
 >You don't have to [ be afraid to use brackets [ in the middle  of notes].  
   
-**Load Notes**
+**Load Notes**  
 1. Right-Click in SplitNotes and select "Load Notes".
 2. Choose your text file.
 3. Make sure that notes for the right number of splits has been loaded.
@@ -50,5 +50,5 @@ Example:
 * Double layout to preview notes for both current and next split.
 
 #### Development
-Written in Python using tkinter GUI library.
+Written in Python using tkinter GUI library.  
 Made by Joelnir.
