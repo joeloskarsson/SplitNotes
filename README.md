@@ -11,11 +11,11 @@ Splitnotes automatically shows notes for the split you are currently on.
 
 ## How To Use  
 **Connect to LiveSplit**  
-1. Launch Splitnotes
-2. Launch LiveSplit
-3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.
-4. In LiveSplit, select "Control" -> "Start Server".
-5. SplitNotes should now be connected to LiveSplit. If connection is active the Icon for SplitNotes is green.
+1. Launch Splitnotes  
+2. Launch LiveSplit  
+3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.  
+4. In LiveSplit, select "Control" -> "Start Server".  
+5. SplitNotes should now be connected to LiveSplit. If connection is active the Icon for SplitNotes is green.  
 
 **Format your notes**  
 It is recommended to use a .txt file to store your notes.  
@@ -38,10 +38,10 @@ Example:
 >You don't have to [ be afraid to use brackets [ in the middle  of notes].  
   
 **Load Notes**  
-1. Right-Click in SplitNotes and select "Load Notes".
-2. Choose your text file.
-3. Make sure that notes for the right number of splits has been loaded.
-
+1. Right-Click in SplitNotes and select "Load Notes".  
+2. Choose your text file.  
+3. Make sure that notes for the right number of splits has been loaded.  
+  
 ## Features  
   
 * Automatically displayed notes based on the active split in LiveSplit.
