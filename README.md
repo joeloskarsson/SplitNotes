@@ -3,6 +3,9 @@ Software for syncing notes with LiveSplit using the LiveSplit server component.
   
 Splitnotes automatically shows notes for the split you are currently on.  
 
+![Screenshot 1](http://i.imgur.com/tYlSZMM.png) 
+![Screenshot 2](http://i.imgur.com/4Ei2IiJ.png)
+
 ## Install
 1. Download the latest version of LiveSplit Server Component from [this](https://github.com/LiveSplit/LiveSplit.Server/releases) site.
 2. Unzip and move the files to the component folder in your LiveSplit install (...\LiveSplit\Components)
