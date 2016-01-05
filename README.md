@@ -38,20 +38,20 @@ Example:
 >A simple new line is enough to separate notes for different splits.  
 >  
 >Also som notes for split 3.  
->You don't have to [ be afraid to use brackets [ in the middle  of notes].  
+>You don't have to [ worry abut using brackets [ in the middle  of a row].  
   
 **Load Notes**  
 1. Right-Click in SplitNotes and select "Load Notes".  
 2. Choose your text file.  
-3. Make sure that notes for the right number of splits has been loaded.  
+3. Make sure that notes for the right amount of splits have been loaded.  
   
 ## Features  
   
 * Automatically displayed notes based on the active split in LiveSplit.
-* Ability to preview notes in the software before when no run is going on by using the right and left arrow keys.
+* Ability to preview notes in the software when no run is going on by using the right and left arrow keys.
 * Two different font sizes to make sure that notes are easy to read.
 * Double layout to preview notes for both current and next split.
 
 #### Development
-Written in Python using tkinter GUI library.  
+Written in mainly procedural Python using tkinter GUI library.  
 Made by Joelnir.
