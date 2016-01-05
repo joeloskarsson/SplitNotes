@@ -16,7 +16,7 @@ Splitnotes automatically shows notes for the split you are currently on.
 **Connect to LiveSplit**  
 1. Launch Splitnotes  
 2. Launch LiveSplit  
-3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.  (Let the server use the default port: 16834)
+3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.  (Let the server use the default port: 16834)  
 4. In LiveSplit, select "Control" -> "Start Server".  
 5. SplitNotes should now be connected to LiveSplit. If connection is active the Icon for SplitNotes is green.  
 
