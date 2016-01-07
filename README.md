@@ -14,7 +14,7 @@ Splitnotes automatically shows notes for the split you are currently on.
 
 ## How To Use  
 **Connect to LiveSplit**  
-1. Launch Splitnotes  
+1. Launch Splitnotes.exe  
 2. Launch LiveSplit  
 3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.  (Let the server use the default port: 16834)  
 4. In LiveSplit, select "Control" -> "Start Server".  
