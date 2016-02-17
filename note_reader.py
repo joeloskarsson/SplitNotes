@@ -22,7 +22,6 @@ def get_note_lines(file_path):
 	Returns false if file can not be read.
 	"""
 	
-
 	#check so file isn't too big
 	if path.getsize(file_path) > config.MAX_FILE_SIZE:
 		return False

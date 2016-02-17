@@ -9,6 +9,7 @@ import sys
 import config
 import ls_connection as con
 import note_reader as noter
+import setting_handler as settings
 
 runtime_info = {
 				"ls_connected": False,
@@ -24,12 +25,12 @@ root = tkinter.Tk()
 
 red_path= os.path.join(
 					str(os.path.dirname(os.path.realpath(sys.argv[0]))), 
-					config.ICON_FOLDER, 
+					config.RESOURCE_FOLDER, 
 					config.ICONS["RED"]
 					)
 green_path= os.path.join(
 					str(os.path.dirname(os.path.realpath(sys.argv[0]))), 
-					config.ICON_FOLDER, 
+					config.RESOURCE_FOLDER, 
 					config.ICONS["GREEN"]
 					)
 red_icon = tkinter.Image("photo", file=red_path)
@@ -82,7 +83,8 @@ def update(window, com_socket, text1, text2):
 	
 	
 	#self looping
-	window.after(int(config.POLLING_TIME * 1000), update, window, com_socket, text1, text2)
+	window.after(int(config.POLLING_TIME * 1000), 
+				update, window, com_socket, text1, text2)
 
 
 def	update_GUI(window, com_socket, text1, text2):
@@ -232,7 +234,8 @@ def load_notes(window, text1, text2, com_socket):
 			runtime_info["notes"] = notes
 			
 			split_c = len(notes)
-			show_info(("Notes Loaded", ("Loaded notes with " + str(split_c) + " splits.")))
+			show_info(("Notes Loaded", 
+						("Loaded notes with " + str(split_c) + " splits.")))
 			
 			if not runtime_info["timer_running"]:
 				runtime_info["active_split"] = -1
@@ -341,6 +344,13 @@ def	menu_font_size(text_font, menu):
 		
 	update_font_size(text_font)
 	
+def menu_open_settings(root_wnd, apply_method, text1, text2):
+	settings.edit_settings(root_wnd, apply_method, text1, text2)
+	
+def apply_settings(config, text1, text2):
+	#TODO apply all settings to the root window
+	print("Applying settings")
+	
 def update_font_size(text_font):
 	if runtime_info["big_font"]:
 		font_size = config.FONT["BIG"]
@@ -420,6 +430,10 @@ def init_UI(root):
 	popup.add_command(
 					label=config.MENU_OPTIONS["LOAD"], 
 					command=(lambda: menu_load_notes(root, text1, text2, com_socket))
+					)
+	popup.add_command(
+					label=config.MENU_OPTIONS["SETTINGS"], 
+					command=(lambda: menu_open_settings(root, apply_settings, text1, text2))
 					)
 	
 	
