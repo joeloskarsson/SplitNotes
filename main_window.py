@@ -9,16 +9,15 @@ import sys
 import config
 import ls_connection as con
 import note_reader as noter
-import setting_handler as settings
+import setting_handler
 
 runtime_info = {
 	"ls_connected": False,
 	"timer_running": False,
-	"icon_active": False,
 	"active_split": -1,
 	"notes": [],
-	"double_layout": False,
-	"big_font": False
+	"server_port": 0,
+	"force_reset": False
 }
 
 root = tkinter.Tk()
@@ -41,9 +40,14 @@ def update(window, com_socket, text1, text2):
 	"""
 	Function to loop along tkinter mainloop.
 	"""
-	if not runtime_info["ls_connected"]:
+	if runtime_info["force_reset"]:
+		#boolean flag to force a connection reset
+		com_socket = reset_connection(com_socket, window, text1, text2)
+		runtime_info["force_reset"] = False
+
+	elif not runtime_info["ls_connected"]:
 		# try connecting to ls
-		con.ls_connect(com_socket, server_found, window)
+		con.ls_connect(com_socket, server_found, window, runtime_info["server_port"])
 	else:
 		# is_connected
 		if runtime_info["notes"]:
@@ -105,7 +109,7 @@ def update_GUI(window, com_socket, text1, text2):
 
 	if runtime_info["notes"]:
 		set_title_notes(window, index, split_name)
-		update_notes(window, text1, text2, index)
+		update_notes(text1, text2, index)
 	else:
 		update_title(config.DEFAULT_WINDOW["TITLE"], window)
 
@@ -139,6 +143,7 @@ def reset_connection(com_socket, window, text1, text2):
 
 	# Close old and return a fresh socket
 	con.close_socket(com_socket)
+
 	return con.init_socket()
 
 
@@ -153,12 +158,10 @@ def server_found(window):
 
 def update_icon(active, window):
 	"""Updates icon of window depending on "active" variable"""
-	if active and not runtime_info["icon_active"]:
+	if active:
 		window.tk.call('wm', 'iconphoto', window._w, green_icon)
-		runtime_info["icon_active"] = True
-	elif runtime_info["icon_active"]:
+	else:
 		window.tk.call('wm', 'iconphoto', window._w, red_icon)
-		runtime_info["icon_active"] = False
 
 
 def update_title(name, window):
@@ -205,16 +208,6 @@ def show_popup(event, menu):
 	menu.post(event.x_root, event.y_root)
 
 
-def menu_change_layout(window, box1, box2, popup):
-	"""Menu option for changing layout selected."""
-	if runtime_info["double_layout"]:
-		set_single_layout(window, box1, box2)
-		popup.entryconfig(0, label=config.MENU_OPTIONS["DOUBLE"])
-	else:
-		set_double_layout(window, box1, box2)
-		popup.entryconfig(0, label=config.MENU_OPTIONS["SINGLE"])
-
-
 def menu_load_notes(window, text1, text2, com_socket):
 	"""Menu selected load notes option."""
 	load_notes(window, text1, text2, com_socket)
@@ -232,6 +225,11 @@ def load_notes(window, text1, text2, com_socket):
 			# Notes loaded correctly
 			runtime_info["notes"] = notes
 
+			# Save notes to settings
+			settings = setting_handler.load_settings()
+			settings["notes"] = file
+			setting_handler.save_settings(settings)
+
 			split_c = len(notes)
 			show_info(("Notes Loaded",
 					   ("Loaded notes with " + str(split_c) + " splits.")))
@@ -244,10 +242,9 @@ def load_notes(window, text1, text2, com_socket):
 		else:
 			show_info(config.ERRORS["NOTES_EMPTY"], True)
 
-
 def show_info(info, warning=False):
 	"""
-	Displays an infor popup window.
+	Displays an info popup window.
 	if warning is True window has a warning triangle.
 	"""
 	if warning:
@@ -256,7 +253,7 @@ def show_info(info, warning=False):
 		messagebox.showinfo(info[0], info[1])
 
 
-def update_notes(window, text1, text2, index):
+def update_notes(text1, text2, index):
 	"""
 	Displays notes with the given index in given text widgets.
 	If index is lower than 0, displays notes for index 0.
@@ -279,7 +276,7 @@ def update_notes(window, text1, text2, index):
 	if index <= max_index:
 		text1.insert(tkinter.END, runtime_info["notes"][index])
 
-		# cand disply notes for index+1
+		# cant disply notes for index+1
 		if index < max_index:
 			text2.insert(tkinter.END, runtime_info["notes"][index + 1])
 
@@ -298,7 +295,10 @@ def left_arrow(window, com_socket, text1, text2):
 
 
 def change_preview(window, com_socket, text1, text2, move):
-	"""move is either 1 for next or -1 for previous."""
+	"""
+	Chnges notes that are currently displayed.
+	Move is either 1 for next or -1 for previous.
+	"""
 	if runtime_info["notes"] and (not runtime_info["timer_running"]):
 		max_index = (len(runtime_info["notes"]) - 1)
 		index = runtime_info["active_split"]
@@ -334,34 +334,31 @@ def set_title_notes(window, index, split_name=False):
 	update_title(title, window)
 
 
-def menu_font_size(text_font, menu):
-	if runtime_info["big_font"]:
-		runtime_info["big_font"] = False
-		menu.entryconfig(1, label=config.MENU_OPTIONS["BIG"])
+def menu_open_settings(root_wnd, box1, box2, text1, text2):
+	setting_handler.edit_settings(root_wnd,
+								  (lambda settings: apply_settings(settings,
+																   root_wnd,
+																   box1,box2,
+																   text1, text2)))
+
+
+def apply_settings(settings, window, box1, box2, text1, text2):
+	#Server port change
+	if not (runtime_info["server_port"] == int(settings["server_port"])):
+		runtime_info["server_port"] = int(settings["server_port"])
+		runtime_info["force_reset"] = True
+
+	text_font = (settings["font"], int(settings["font_size"]))
+
+	if setting_handler.decode_boolean_setting(settings["double_layout"]):
+		set_double_layout(window, box1, box2)
 	else:
-		runtime_info["big_font"] = True
-		menu.entryconfig(1, label=config.MENU_OPTIONS["SMALL"])
+		set_single_layout(window, box1, box2)
 
-	update_font_size(text_font)
-
-
-def menu_open_settings(root_wnd, apply_method, text1, text2):
-	settings.edit_settings(root_wnd, (lambda settings: apply_settings(settings, text1, text2)))
-
-
-def apply_settings(config, text1, text2):
-	# TODO apply all settings to the root window
-	print("Applying settings")
-	print(config)
-
-
-def update_font_size(text_font):
-	if runtime_info["big_font"]:
-		font_size = config.FONT["BIG"]
-	else:
-		font_size = config.FONT["SMALL"]
-
-	text_font.config(size=font_size)
+	text1.config(font=text_font)
+	text2.config(font=text_font)
+	text1.config(fg=settings["text_color"], bg=settings["background_color"])
+	text2.config(fg=settings["text_color"], bg=settings["background_color"])
 
 
 def init_UI(root):
@@ -369,6 +366,10 @@ def init_UI(root):
 
 	# Create communication socket
 	com_socket = con.init_socket()
+
+	# Load Settings
+	settings = setting_handler.load_settings()
+	runtime_info["server_port"] = int(settings["server_port"])
 
 	# Graphical components
 	root.geometry(str(config.DEFAULT_WINDOW["WIDTH"]) + "x" + str(config.DEFAULT_WINDOW["HEIGHT"]))
@@ -392,6 +393,7 @@ def init_UI(root):
 	text1.config(state=tkinter.DISABLED)
 	text1.pack(fill=tkinter.BOTH, expand=True)
 
+
 	text2 = tkinter.Text(
 		box2,
 		yscrollcommand=scroll2.set,
@@ -406,43 +408,42 @@ def init_UI(root):
 	scroll2.config(command=text2.yview)
 
 	# Set font and color for text
-	text_font = font.Font(
-		family=config.FONT["NAME"],
-		size=config.FONT["SMALL"]
-	)
+	text_font = (settings["font"], int(settings["font_size"]))
+
 	text1.config(font=text_font)
 	text2.config(font=text_font)
-	text1.config(fg=config.COLOR["TEXT"], bg=config.COLOR["TEXT_BG"])
-	text2.config(fg=config.COLOR["TEXT"], bg=config.COLOR["TEXT_BG"])
+	text1.config(fg=settings["text_color"], bg=settings["background_color"])
+	text2.config(fg=settings["text_color"], bg=settings["background_color"])
 
-	set_single_layout(root, box1, box2)
+	if setting_handler.decode_boolean_setting(settings["double_layout"]):
+		set_double_layout(root, box1, box2)
+	else:
+		set_single_layout(root, box1, box2)
 
 	# create popup menu
 	popup = tkinter.Menu(root, tearoff=0)
-	popup.add_command(
-		label=config.MENU_OPTIONS["DOUBLE"],
-		command=(
-			lambda: menu_change_layout(root, box1, box2, popup)
-		)
-	)  # Needs to be at index 0
-	popup.add_command(
-		label=config.MENU_OPTIONS["BIG"],
-		command=(
-			lambda: menu_font_size(text_font, popup)
-		)
-	)  # Needs to be at index 1
 	popup.add_command(
 		label=config.MENU_OPTIONS["LOAD"],
 		command=(lambda: menu_load_notes(root, text1, text2, com_socket))
 	)
 	popup.add_command(
 		label=config.MENU_OPTIONS["SETTINGS"],
-		command=(lambda: menu_open_settings(root, apply_settings, text1, text2))
+		command=(lambda: menu_open_settings(root, box1, box2, text1, text2))
 	)
 
 	# Set default window icon and title
 	root.tk.call('wm', 'iconphoto', root._w, red_icon)
 	update_title(config.DEFAULT_WINDOW["TITLE"], root)
+
+	# Check if notes can be loaded from settings
+	settings = setting_handler.load_settings()
+
+	if settings["notes"] and noter.file_exists(settings["notes"]):
+		notes = noter.get_notes(settings["notes"])
+
+		if notes:
+			runtime_info["notes"] = notes
+			update_GUI(root, com_socket, text1, text2)
 
 	# Event binds
 	root.bind("<Configure>", (lambda e: adjust_content(root, box1, box2)))

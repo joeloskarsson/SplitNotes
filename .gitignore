@@ -2,3 +2,4 @@
 TESTING.py
 .idea
 __pycache__
+resources/config.cfg

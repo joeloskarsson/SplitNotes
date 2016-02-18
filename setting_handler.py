@@ -18,6 +18,7 @@ settings_icon_path = os.path.join(
 	config.ICONS["SETTINGS"]
 )
 
+
 def load_settings():
 	"""
 	Tries to load settings from file.
@@ -65,10 +66,11 @@ def format_settings(file_rows):
 
 	for row in file_rows:
 		row = row.strip("\n")
-		parts = row.split("=")
+		parts = row.split("=", 1)
 
 		if len(parts) == SETTING_PART_LENGTH:
-			settings[parts[0]] = parts[1]
+			# Strip to remove whitespace at end and beginning
+			settings[parts[0].strip()] = parts[1].strip()
 
 	return settings
 
@@ -115,6 +117,10 @@ def validate_settings(settings):
 	if not (settings["font"] in config.AVAILABLE_FONTS):
 		return False
 
+	if not ((settings["double_layout"] == "True") or
+				(settings["double_layout"] == "False")):
+		return False
+
 	return True
 
 
@@ -156,12 +162,16 @@ def edit_settings(root_wnd, apply_method):
 	bg_color_label = tkinter.Label(settings_wnd,
 								   text=config.SETTINGS_OPTIONS["BG_COLOR"],
 								   font=config.GUI_FONT)
+	layout_label = tkinter.Label(settings_wnd,
+								   text=config.SETTINGS_OPTIONS["DOUBLE_LAYOUT"],
+								   font=config.GUI_FONT)
 	port_label = tkinter.Label(settings_wnd,
 								   text=config.SETTINGS_OPTIONS["SERVER_PORT"],
 								   font=config.GUI_FONT)
 	default_port_label = tkinter.Label(settings_wnd,
 								   text=config.SETTINGS_OPTIONS["DEFAULT_SERVER_PORT"],
 								   font=config.GUI_FONT)
+
 
 	# Font Selection
 	selected_font = tkinter.StringVar(settings_wnd)
@@ -211,7 +221,6 @@ def edit_settings(root_wnd, apply_method):
 	def bg_color_selection():
 		choosen_color = colorchooser.askcolor()
 		if choosen_color[1]:
-			print(choosen_color)
 			settings["background_color"] = choosen_color[1]
 			bg_color.configure(background=settings["background_color"])
 
@@ -223,6 +232,13 @@ def edit_settings(root_wnd, apply_method):
 	port_entry = tkinter.Entry(settings_wnd, width=6, font=config.GUI_FONT)
 	port_entry.insert(0, settings["server_port"])
 
+	# Double Layout Selection
+	double_layout = tkinter.BooleanVar()
+	double_layout_btn = tkinter.Checkbutton(settings_wnd, variable=double_layout)
+
+	if decode_boolean_setting(settings["double_layout"]):
+		double_layout_btn.select()
+
 	# Save and cancel buttons
 	def control_and_save():
 		errors_found = False
@@ -231,6 +247,8 @@ def edit_settings(root_wnd, apply_method):
 
 		chosen_font_size = font_size_entry.get()
 		chosen_port = port_entry.get()
+
+		settings["double_layout"] = encode_boolean_setting(double_layout.get())
 
 		if not validate_font_size(chosen_font_size):
 			msgbox.showerror(config.ERRORS["FONT_SIZE"][0], config.ERRORS["FONT_SIZE"][1])
@@ -265,17 +283,19 @@ def edit_settings(root_wnd, apply_method):
 	font_size_label.place(x=15, y=55)
 	text_color_label.place(x=15, y=95)
 	bg_color_label.place(x=15, y=135)
-	port_label.place(x=15, y=175)
-	default_port_label.place(x=15, y=200)
+	layout_label.place(x=15, y=175)
+	port_label.place(x=15, y=215)
+	default_port_label.place(x=15, y=240)
 
 	font_dropdown.place(x=178, y=15)
 	font_size_entry.place(x=180, y=55)
 	text_color.place(x=180, y=95)
 	bg_color.place(x=180, y=135)
-	port_entry.place(x=180, y=175)
+	double_layout_btn.place(x=180, y=175)
+	port_entry.place(x=180, y=215)
 
-	save_btn.place(x=110, y=230)
-	cancel_btn.place(x=190, y=230)
+	save_btn.place(x=110, y=280)
+	cancel_btn.place(x=190, y=280)
 
 
 def validate_color(color):
@@ -315,3 +335,13 @@ def save_settings(settings):
 			file_content += key + "=" + settings[key] + "\n"
 
 	set_settings_file_content(file_content)
+
+
+def decode_boolean_setting(setting):
+	return setting == "True"
+
+def encode_boolean_setting(value):
+	if value:
+		return "True"
+	else:
+		return "False"

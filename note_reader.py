@@ -120,3 +120,7 @@ def select_file():
 		return file
 	else:
 		return False
+
+
+def file_exists(file):
+	return path.isfile(file)

@@ -64,7 +64,7 @@ TEXT_FILES = [
 ]
 
 # Default content of config.cfg file
-DEFAULT_CONFIG = "notes=\nfont_size=12\nfont=arial\ntext_color=#FFFFFF\nbackground_color=#000000\nserver_port=16834"
+DEFAULT_CONFIG = "notes=\nfont_size=12\nfont=arial\ntext_color=#000000\nbackground_color=#FFFFFF\ndouble_layout=False\nserver_port=16834"
 
 # Required settings
 REQUIRED_SETTINGS = ("notes",
@@ -72,13 +72,14 @@ REQUIRED_SETTINGS = ("notes",
 					 "font_size",
 					 "text_color",
 					 "background_color",
-					 "server_port"
+					 "server_port",
+					 "double_layout"
 					 )
 
 # Settings window options
 SETTINGS_WINDOW = {"TITLE": "Settings",
 				   "WIDTH": 360,
-				   "HEIGHT": 280,
+				   "HEIGHT": 330,
 				   "CANCEL": "Cancel",
 				   "SAVE": "Save"}
 
@@ -88,12 +89,12 @@ SETTINGS_OPTIONS = {"FONT": "Font",
 					"TEXT_COLOR": "Text Color",
 					"BG_COLOR": "Background Color",
 					"SERVER_PORT": "LiveSplit Server port",
-					"DEFAULT_SERVER_PORT": "(Default is 16834)"}
+					"DEFAULT_SERVER_PORT": "(Default is 16834)",
+					"DOUBLE_LAYOUT": "Use double layout"}
 
 # Fonts that can be selected
 AVAILABLE_FONTS = ("arial",
 				   "courier new",
-				   "comic sans",
 				   "fixedsys",
 				   "ms sans serif",
 				   "ms serif",

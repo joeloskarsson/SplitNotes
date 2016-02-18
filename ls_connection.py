@@ -8,9 +8,9 @@ import config
 import select  # used for checking if socket has data pending
 
 
-def ls_connect(ls_socket, call_func, window):
+def ls_connect(ls_socket, call_func, window, server_port):
 	"""Connects given socket to the livesplit server."""
-	con_thread = Thread(target=try_connection, args=(ls_socket, call_func, window))
+	con_thread = Thread(target=try_connection, args=(ls_socket, call_func, window, server_port))
 	con_thread.start()
 
 
@@ -19,7 +19,7 @@ def init_socket():
 	return socket.socket()
 
 
-def try_connection(ls_socket, call_func, window):
+def try_connection(ls_socket, call_func, window, server_port):
 	"""
 	Tries to connect given socket to ls.
 	If connection is successful given "call_func" 
@@ -27,7 +27,7 @@ def try_connection(ls_socket, call_func, window):
 	(made to be ran in a separate thread)
 	"""
 	try:
-		ls_socket.connect((config.HOST, config.PORT))
+		ls_socket.connect((config.HOST, server_port))
 	except:
 		return False
 
