@@ -5,18 +5,20 @@ Conversation with livesplit is done through the server component.
 import socket
 from threading import Thread
 import config
-import select #used for checking if socket has data pending
+import select  # used for checking if socket has data pending
+
 
 def ls_connect(ls_socket, call_func, window):
 	"""Connects given socket to the livesplit server."""
 	con_thread = Thread(target=try_connection, args=(ls_socket, call_func, window))
 	con_thread.start()
-	
-		
+
+
 def init_socket():
 	"""Returns a fresh socket"""
 	return socket.socket()
-		
+
+
 def try_connection(ls_socket, call_func, window):
 	"""
 	Tries to connect given socket to ls.
@@ -28,12 +30,14 @@ def try_connection(ls_socket, call_func, window):
 		ls_socket.connect((config.HOST, config.PORT))
 	except:
 		return False
-		
+
 	call_func(window)
-	
+
+
 def close_socket(com_socket):
 	"""Closes given socket."""
 	com_socket.close()
+
 
 def check_connection(ls_socket):
 	"""
@@ -45,8 +49,8 @@ def check_connection(ls_socket):
 		return True
 	else:
 		return False
-		
-	
+
+
 def send_to_ls(ls_socket, command):
 	"""
 	Sends given command to ls using given socket.
@@ -59,7 +63,7 @@ def send_to_ls(ls_socket, command):
 		ls_socket.send(str.encode(config.LS_COMMANDS[command]))
 	except:
 		return False
-	
+
 	socket_ready = select.select([ls_socket], [], [], config.COM_TIMEOUT)
 	if socket_ready[0]:
 		try:
@@ -68,7 +72,7 @@ def send_to_ls(ls_socket, command):
 			return False
 	else:
 		return False
-	
+
 
 def get_split_index(ls_socket):
 	"""
@@ -79,12 +83,12 @@ def get_split_index(ls_socket):
 	Returns False on Error
 	"""
 	ls_data = send_to_ls(ls_socket, "cur_split_index")
-	
+
 	if not isinstance(ls_data, bool):
 		return int(ls_data)
 	else:
 		return False
-		
+
 
 def get_split_name(ls_socket):
 	"""
@@ -92,7 +96,7 @@ def get_split_name(ls_socket):
 	Returns False if no split is active or Error occurs.
 	"""
 	ls_data = send_to_ls(ls_socket, "cur_split_name")
-	
+
 	if ls_data:
 		return ls_data
 	else:

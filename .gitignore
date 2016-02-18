@@ -1,2 +1,4 @@
 *.pyc
 TESTING.py
+.idea
+__pycache__
