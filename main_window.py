@@ -1,8 +1,6 @@
 import tkinter
 from tkinter import messagebox
-from tkinter import font
 
-import socket
 import os
 import sys
 
@@ -17,7 +15,8 @@ runtime_info = {
 	"active_split": -1,
 	"notes": [],
 	"server_port": 0,
-	"force_reset": False
+	"force_reset": False,
+	"double_layout": False
 }
 
 root = tkinter.Tk()
@@ -41,7 +40,7 @@ def update(window, com_socket, text1, text2):
 	Function to loop along tkinter mainloop.
 	"""
 	if runtime_info["force_reset"]:
-		#boolean flag to force a connection reset
+		# Boolean flag to force a connection reset
 		com_socket = reset_connection(com_socket, window, text1, text2)
 		runtime_info["force_reset"] = False
 
@@ -242,6 +241,7 @@ def load_notes(window, text1, text2, com_socket):
 		else:
 			show_info(config.ERRORS["NOTES_EMPTY"], True)
 
+
 def show_info(info, warning=False):
 	"""
 	Displays an info popup window.
@@ -335,15 +335,22 @@ def set_title_notes(window, index, split_name=False):
 
 
 def menu_open_settings(root_wnd, box1, box2, text1, text2):
+	"""
+	Opens the settings menu.
+	"""
 	setting_handler.edit_settings(root_wnd,
 								  (lambda settings: apply_settings(settings,
 																   root_wnd,
-																   box1,box2,
+																   box1, box2,
 																   text1, text2)))
 
 
 def apply_settings(settings, window, box1, box2, text1, text2):
-	#Server port change
+	"""
+	Applies the given settings to the given components.
+	Settings must be a correctly formatted dictionary.
+	"""
+	# Server port change
 	if not (runtime_info["server_port"] == int(settings["server_port"])):
 		runtime_info["server_port"] = int(settings["server_port"])
 		runtime_info["force_reset"] = True
@@ -361,6 +368,26 @@ def apply_settings(settings, window, box1, box2, text1, text2):
 	text2.config(fg=settings["text_color"], bg=settings["background_color"])
 
 
+def save_geometry_settings(width, height):
+	"""
+	Saves given width and height to settigns file.
+	"""
+	settings = setting_handler.load_settings()
+	settings["width"] = str(width)
+	settings["height"] = str(height)
+	setting_handler.save_settings(settings)
+
+
+def do_on_close(root_wnd):
+	"""
+	Function that is called when the main tk window is closed.
+	Saves root_wnd's width and height to the settings file and
+	then closes the window.
+	"""
+	save_geometry_settings(root_wnd.winfo_width(), root_wnd.winfo_height())
+	root_wnd.destroy()
+
+
 def init_UI(root):
 	"""Draws default UI and creates event bindings."""
 
@@ -372,15 +399,14 @@ def init_UI(root):
 	runtime_info["server_port"] = int(settings["server_port"])
 
 	# Graphical components
-	root.geometry(str(config.DEFAULT_WINDOW["WIDTH"]) + "x" + str(config.DEFAULT_WINDOW["HEIGHT"]))
+	root.geometry(settings["width"] + "x" + settings["height"])
 
 	box1 = tkinter.Frame(root)
 	box2 = tkinter.Frame(root)
 
-	scroll1 = tkinter.Scrollbar(box1)
+	scroll1 = tkinter.Scrollbar(box1, width=config.SCROLLBAR_WIDTH)
+	scroll2 = tkinter.Scrollbar(box2, width=config.SCROLLBAR_WIDTH)
 	scroll1.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-
-	scroll2 = tkinter.Scrollbar(box2)
 	scroll2.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 
 	text1 = tkinter.Text(
@@ -392,7 +418,6 @@ def init_UI(root):
 	text1.insert(tkinter.END, config.DEFAULT_MSG)
 	text1.config(state=tkinter.DISABLED)
 	text1.pack(fill=tkinter.BOTH, expand=True)
-
 
 	text2 = tkinter.Text(
 		box2,
@@ -451,9 +476,13 @@ def init_UI(root):
 	root.bind("<Right>", (lambda e: right_arrow(root, com_socket, text1, text2)))
 	root.bind("<Left>", (lambda e: left_arrow(root, com_socket, text1, text2)))
 
+	# Window close bind
+	root.protocol("WM_DELETE_WINDOW", (lambda: do_on_close(root)))
+
 	# call update loop
 	update(root, com_socket, text1, text2)
 
+	root.geometry(settings["width"] + "x" + settings["height"])
 
 init_UI(root)
 

@@ -14,8 +14,8 @@ LS_COMMANDS = {
 	"cur_split_name": "getcurrentsplitname\r\n"
 }
 
-# Default Window Size
-DEFAULT_WINDOW = {"WIDTH": 400, "HEIGHT": 300, "TITLE": "SplitNotes"}
+# Default Window Settings
+DEFAULT_WINDOW = {"TITLE": "SplitNotes"}
 
 # Default Welcome Message
 DEFAULT_MSG = "Right Click to Open Notes."
@@ -23,10 +23,13 @@ DEFAULT_MSG = "Right Click to Open Notes."
 # Update time for polling livesplit and other actions (in seconds)
 POLLING_TIME = 0.5
 
-# file names and path for resources
+# File names and path for resources
 RESOURCE_FOLDER = "resources"
 ICONS = {"GREEN": "green.png", "RED": "red.png", "SETTINGS": "settings_icon.png"}
 SETTINGS_FILE = "config.cfg"
+
+# Default Scrollbar Width
+SCROLLBAR_WIDTH = 16
 
 # Popup menu options
 MENU_OPTIONS = {
@@ -49,13 +52,8 @@ MAX_FILE_SIZE = 1000000000  # 1 Giga-Byte
 # To be added to title to alert user that timer is running
 RUNNING_ALERT = "RUNNING"
 
-# Font for notes/
-# TODO FIX THIS
-FONT = {"NAME": "arial", "SMALL": 12, "BIG": 16}
+# Font for gui widgets
 GUI_FONT = ("arial", 12)
-
-# Color scheme
-COLOR = {"TEXT": "black", "TEXT_BG": "ivory"}
 
 # Files tht should be displayed and opened a notes
 TEXT_FILES = [
@@ -64,7 +62,7 @@ TEXT_FILES = [
 ]
 
 # Default content of config.cfg file
-DEFAULT_CONFIG = "notes=\nfont_size=12\nfont=arial\ntext_color=#000000\nbackground_color=#FFFFFF\ndouble_layout=False\nserver_port=16834"
+DEFAULT_CONFIG = "notes=\nfont_size=12\nfont=arial\ntext_color=#000000\nbackground_color=#FFFFFF\ndouble_layout=False\nserver_port=16834\nwidth=400\nheight=300"
 
 # Required settings
 REQUIRED_SETTINGS = ("notes",
@@ -73,7 +71,9 @@ REQUIRED_SETTINGS = ("notes",
 					 "text_color",
 					 "background_color",
 					 "server_port",
-					 "double_layout"
+					 "double_layout",
+					 "width",
+					 "height"
 					 )
 
 # Settings window options

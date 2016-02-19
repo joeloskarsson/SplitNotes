@@ -33,7 +33,7 @@ def load_settings():
 		settings_content = get_file_lines(settings_file)
 	except:
 		# File not found
-		settings_content = set_default_settings();
+		settings_content = set_default_settings()
 
 	settings = format_settings(settings_content)
 
@@ -121,6 +121,12 @@ def validate_settings(settings):
 				(settings["double_layout"] == "False")):
 		return False
 
+	if not validate_pixels(settings["width"]):
+		return False
+
+	if not validate_pixels(settings["height"]):
+		return False
+
 	return True
 
 
@@ -172,7 +178,6 @@ def edit_settings(root_wnd, apply_method):
 								   text=config.SETTINGS_OPTIONS["DEFAULT_SERVER_PORT"],
 								   font=config.GUI_FONT)
 
-
 	# Font Selection
 	selected_font = tkinter.StringVar(settings_wnd)
 	selected_font.set(settings["font"])
@@ -210,8 +215,7 @@ def edit_settings(root_wnd, apply_method):
 	# Background color Selection
 	bg_color = tkinter.Button(settings_wnd,
 								width=3,
-								height=1,
-								)
+								height=1)
 
 	if validate_color(settings["background_color"]):
 			bg_color.configure(background=settings["background_color"])
@@ -322,13 +326,16 @@ def validate_server_port(port):
 	Returns Whether or not gicen port is a valid server port.
 	"""
 	try:
-		port = int(port)
+		int(port)
 		return True
 	except:
 		return False
 
 
 def save_settings(settings):
+	"""
+	Saves given settings to the settings file.
+	"""
 	file_content = ""
 
 	for key in settings.keys():
@@ -338,10 +345,31 @@ def save_settings(settings):
 
 
 def decode_boolean_setting(setting):
+	"""
+	Decodes a boolean string of "True" or "False"
+	to the coorect boolean value.
+	"""
 	return setting == "True"
 
+
 def encode_boolean_setting(value):
+	"""
+	Encodes a boolean to the  string "True" or "False".
+	"""
 	if value:
 		return "True"
 	else:
 		return "False"
+
+
+def validate_pixels(pixels):
+	"""
+	Checks if given string can be used as a pixel value for height or width.
+	Height or Width ar assumed to never surpass 10000
+	"""
+	try:
+		pixels = int(pixels)
+	except:
+		return False
+
+	return 0 < pixels < 10000

@@ -36,7 +36,11 @@ def get_note_lines(file_path):
 	f_lines = []
 	keep_reading = True
 	while keep_reading:
-		cur_line = notes_file.readline()
+
+		try:
+			cur_line = notes_file.readline()
+		except:
+			return False
 
 		if cur_line:
 			f_lines.append(cur_line)
@@ -123,4 +127,5 @@ def select_file():
 
 
 def file_exists(file):
+	"""Checks if given path leads to an existing file."""
 	return path.isfile(file)
