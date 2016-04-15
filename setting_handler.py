@@ -127,6 +127,9 @@ def validate_settings(settings):
 	if not validate_pixels(settings["height"]):
 		return False
 
+	if not validate_separator(settings["separator"]):
+		return False
+
 	return True
 
 
@@ -170,6 +173,12 @@ def edit_settings(root_wnd, apply_method):
 								   font=config.GUI_FONT)
 	layout_label = tkinter.Label(settings_wnd,
 								   text=config.SETTINGS_OPTIONS["DOUBLE_LAYOUT"],
+								   font=config.GUI_FONT)
+	newline_label = tkinter.Label(settings_wnd,
+								   text=config.SETTINGS_OPTIONS["NEW_LINE_SEPARATOR"],
+								   font=config.GUI_FONT)
+	separator_label = tkinter.Label(settings_wnd,
+								   text=config.SETTINGS_OPTIONS["CUSTOM_SEPARATOR"],
 								   font=config.GUI_FONT)
 	port_label = tkinter.Label(settings_wnd,
 								   text=config.SETTINGS_OPTIONS["SERVER_PORT"],
@@ -243,6 +252,28 @@ def edit_settings(root_wnd, apply_method):
 	if decode_boolean_setting(settings["double_layout"]):
 		double_layout_btn.select()
 
+	# Separator selection
+	separator_entry = tkinter.Entry(settings_wnd, width=14, font=config.GUI_FONT)
+
+	def set_separator_active(active):
+		if active:
+			separator_entry.configure(state="normal")
+		else:
+			separator_entry.configure(state="disabled")
+
+	use_newline = tkinter.BooleanVar()
+	newline_btn = tkinter.Checkbutton(settings_wnd,
+									  variable=use_newline,
+									  command=
+									  	(lambda: set_separator_active(not use_newline.get()))
+									  )
+
+	if settings["separator"] == config.NEWLINE_CONSTANT:
+			newline_btn.select()
+			set_separator_active(False);
+	else:
+		separator_entry.insert(0, settings["separator"])
+
 	# Save and cancel buttons
 	def control_and_save():
 		errors_found = False
@@ -251,6 +282,11 @@ def edit_settings(root_wnd, apply_method):
 
 		chosen_font_size = font_size_entry.get()
 		chosen_port = port_entry.get()
+
+		if use_newline.get():
+			chosen_separator = config.NEWLINE_CONSTANT
+		else:
+			chosen_separator = separator_entry.get()
 
 		settings["double_layout"] = encode_boolean_setting(double_layout.get())
 
@@ -265,6 +301,12 @@ def edit_settings(root_wnd, apply_method):
 			errors_found = True
 		else:
 			settings["server_port"] = chosen_port
+
+		if not validate_separator(chosen_separator):
+			msgbox.showerror(config.ERRORS["SEPARATOR"][0], config.ERRORS["SEPARATOR"][1])
+			errors_found = True
+		else:
+			settings["separator"] = chosen_separator
 
 		if not errors_found:
 			save_settings(settings)
@@ -288,18 +330,22 @@ def edit_settings(root_wnd, apply_method):
 	text_color_label.place(x=15, y=95)
 	bg_color_label.place(x=15, y=135)
 	layout_label.place(x=15, y=175)
-	port_label.place(x=15, y=215)
-	default_port_label.place(x=15, y=240)
+	newline_label.place(x=15, y=215)
+	separator_label.place(x=15, y=240)
+	port_label.place(x=15, y=280)
+	default_port_label.place(x=15, y=305)
 
-	font_dropdown.place(x=178, y=15)
-	font_size_entry.place(x=180, y=55)
-	text_color.place(x=180, y=95)
-	bg_color.place(x=180, y=135)
-	double_layout_btn.place(x=180, y=175)
-	port_entry.place(x=180, y=215)
+	font_dropdown.place(x=208, y=15)
+	font_size_entry.place(x=210, y=55)
+	text_color.place(x=210, y=95)
+	bg_color.place(x=210, y=135)
+	double_layout_btn.place(x=210, y=175)
+	newline_btn.place(x=210, y=215)
+	separator_entry.place(x=210, y=240)
+	port_entry.place(x=210, y=280)
 
-	save_btn.place(x=110, y=280)
-	cancel_btn.place(x=190, y=280)
+	save_btn.place(x=110, y=350)
+	cancel_btn.place(x=190, y=350)
 
 
 def validate_color(color):
@@ -365,7 +411,7 @@ def encode_boolean_setting(value):
 def validate_pixels(pixels):
 	"""
 	Checks if given string can be used as a pixel value for height or width.
-	Height or Width ar assumed to never surpass 10000
+	Height or Width or assumed to never surpass 10000
 	"""
 	try:
 		pixels = int(pixels)
@@ -373,3 +419,7 @@ def validate_pixels(pixels):
 		return False
 
 	return 0 < pixels < 10000
+
+
+def validate_separator(separator):
+	return separator.strip()

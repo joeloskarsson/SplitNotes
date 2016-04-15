@@ -5,8 +5,9 @@ import config
 
 """
 NOTE STANDARD FORMATTING
-
 empty newlines separate notes for different splits
+
+It is also possible to set your own split separator in the settings menu
 
 lines that start and end with [ ] are ignored for notes.
 these can be used for titles. 
@@ -50,12 +51,17 @@ def get_note_lines(file_path):
 	return f_lines
 
 
-def encode_notes(note_lines):
+def decode_notes(note_lines, separator):
 	"""
 	Takes a list containing strings.
 	Encodes given strings according to the note formatting.
 	Returns the list containing the notes for every split. 
 	"""
+
+	#Check if newline is being used as separator
+
+	if separator == config.NEWLINE_CONSTANT:
+		separator = "" # left after stripping newline
 
 	def is_title(line):
 		if not line:
@@ -63,8 +69,11 @@ def encode_notes(note_lines):
 
 		return (line[0] == "[") and (line[-1] == "]")
 
-	def is_newline(line):
-		return (line == "\n") or (line == "\r")
+	def is_separator(line):
+		return (line == separator)
+
+	def is_newline(s):
+		return (s == "\n")
 
 	def remove_new_line(line):
 		if (len(line) >= 1) and (is_newline(line[-1])):
@@ -76,15 +85,13 @@ def encode_notes(note_lines):
 	cur_notes = ""
 
 	for line in note_lines:
-		# remove whitespace at beginning and end
-		line = line.strip(" ")
+		line = remove_new_line(line)
 
-		if is_newline(line):
+		if is_separator(line):
 			if cur_notes:
 				note_list.append(cur_notes)
 				cur_notes = ""
 		else:
-			line = remove_new_line(line)
 			if not is_title(line):
 				cur_notes += line + "\n"  # newline
 
@@ -94,7 +101,7 @@ def encode_notes(note_lines):
 	return note_list
 
 
-def get_notes(file_path):
+def get_notes(file_path, separator):
 	"""
 	Takes a path to a file and returns a list with the notes 
 	in the file encoded according to the note fromatting.
@@ -106,7 +113,7 @@ def get_notes(file_path):
 	if not note_lines:
 		return False
 
-	note_list = encode_notes(note_lines)
+	note_list = decode_notes(note_lines, separator)
 
 	return note_list
 

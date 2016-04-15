@@ -16,7 +16,8 @@ runtime_info = {
 	"notes": [],
 	"server_port": 0,
 	"force_reset": False,
-	"double_layout": False
+	"double_layout": False,
+	"settings": {}
 }
 
 root = tkinter.Tk()
@@ -219,7 +220,7 @@ def load_notes(window, text1, text2, com_socket):
 	file = noter.select_file()
 
 	if file:
-		notes = noter.get_notes(file)
+		notes = noter.get_notes(file, runtime_info["settings"]["separator"])
 		if notes:
 			# Notes loaded correctly
 			runtime_info["notes"] = notes
@@ -334,7 +335,7 @@ def set_title_notes(window, index, split_name=False):
 	update_title(title, window)
 
 
-def menu_open_settings(root_wnd, box1, box2, text1, text2):
+def menu_open_settings(root_wnd, box1, box2, text1, text2, com_socket):
 	"""
 	Opens the settings menu.
 	"""
@@ -342,14 +343,16 @@ def menu_open_settings(root_wnd, box1, box2, text1, text2):
 								  (lambda settings: apply_settings(settings,
 																   root_wnd,
 																   box1, box2,
-																   text1, text2)))
+																   text1, text2, com_socket)))
 
 
-def apply_settings(settings, window, box1, box2, text1, text2):
+def apply_settings(settings, window, box1, box2, text1, text2, com_socket):
 	"""
 	Applies the given settings to the given components.
 	Settings must be a correctly formatted dictionary.
 	"""
+	runtime_info["settings"] = settings
+
 	# Server port change
 	if not (runtime_info["server_port"] == int(settings["server_port"])):
 		runtime_info["server_port"] = int(settings["server_port"])
@@ -366,6 +369,28 @@ def apply_settings(settings, window, box1, box2, text1, text2):
 	text2.config(font=text_font)
 	text1.config(fg=settings["text_color"], bg=settings["background_color"])
 	text2.config(fg=settings["text_color"], bg=settings["background_color"])
+
+	old_note_length = len(runtime_info["notes"])
+
+	if settings["notes"] and noter.file_exists(settings["notes"]):
+		new_notes = noter.get_notes(settings["notes"], settings["separator"])
+
+		if new_notes:
+				# Notes loaded correctly
+				runtime_info["notes"] = new_notes
+
+				new_note_length = len(new_notes)
+
+				if not (new_note_length == old_note_length):
+					show_info(("Notes Loaded",
+							   ("Loaded notes with " + str(new_note_length) + " splits.")))
+
+					if not runtime_info["timer_running"]:
+						runtime_info["active_split"] = -1
+
+				update_GUI(window, com_socket, text1, text2)
+		else:
+			show_info(config.ERRORS["NOTES_EMPTY"], True)
 
 
 def save_geometry_settings(width, height):
@@ -397,6 +422,7 @@ def init_UI(root):
 	# Load Settings
 	settings = setting_handler.load_settings()
 	runtime_info["server_port"] = int(settings["server_port"])
+	runtime_info["settings"] = settings
 
 	# Graphical components
 	root.geometry(settings["width"] + "x" + settings["height"])
@@ -453,7 +479,7 @@ def init_UI(root):
 	)
 	popup.add_command(
 		label=config.MENU_OPTIONS["SETTINGS"],
-		command=(lambda: menu_open_settings(root, box1, box2, text1, text2))
+		command=(lambda: menu_open_settings(root, box1, box2, text1, text2, com_socket))
 	)
 
 	# Set default window icon and title
@@ -464,7 +490,7 @@ def init_UI(root):
 	settings = setting_handler.load_settings()
 
 	if settings["notes"] and noter.file_exists(settings["notes"]):
-		notes = noter.get_notes(settings["notes"])
+		notes = noter.get_notes(settings["notes"], settings["separator"])
 
 		if notes:
 			runtime_info["notes"] = notes
