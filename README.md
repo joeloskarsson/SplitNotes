@@ -3,7 +3,7 @@ Software for syncing notes with LiveSplit using the LiveSplit server component.
   
 Splitnotes automatically shows notes for the split you are currently on.  
 
-![Screenshot 1](http://i.imgur.com/tYlSZMM.png) 
+![Screenshot 1](http://i.imgur.com/CMlF2pj.png) 
 ![Screenshot 2](http://i.imgur.com/4Ei2IiJ.png)
 
 ## Install
@@ -45,12 +45,18 @@ Example:
 2. Choose your text file.  
 3. Make sure that notes for the right amount of splits have been loaded.  
   
+**Change Settings**  
+1. Right-Click in SplitNotes and select "Settings"  
+2. The settings menu will show up. Here you can set things like font, font size, text and background color and the server port. 
+  
 ## Features  
   
 * Automatically displayed notes based on the active split in LiveSplit.
 * Ability to preview notes in the software when no run is going on by using the right and left arrow keys.
 * Two different font sizes to make sure that notes are easy to read.
 * Double layout to preview notes for both current and next split.
+* Multiple settings to change the look of the text.
+* Ability to set a custom port for interaction with the LiveSplit Server.
 
 #### Development
 Written in mainly procedural Python using tkinter GUI library.  
