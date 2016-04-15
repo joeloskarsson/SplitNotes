@@ -16,7 +16,7 @@ Splitnotes automatically shows notes for the split you are currently on.
 **Connect to LiveSplit**  
 1. Launch Splitnotes.exe  
 2. Launch LiveSplit  
-3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok.  (Let the server use the default port: 16834)  
+3. Go to "Edit Layout" -> "+" -> "Control" -> "LiveSplit Server". Hit ok. 
 4. In LiveSplit, select "Control" -> "Start Server".  
 5. SplitNotes should now be connected to LiveSplit. If connection is active the Icon for SplitNotes is green.  
 
@@ -25,10 +25,10 @@ It is recommended to use a .txt file to store your notes.
 Note files should be formatted as following:
   
 * Normal text is treated as notes
-* New Line means notes for a specific split is over.
 * Text in bracket ([some text]) is ignored from notes, this could be used to write down titles or other comments to keep the note file tidy.
+* A line only containing a split separator, such as a word (for example "\<split\>") or a simple newline, signals that notes for a specific split is over. You can set what you want to use as a split separator in the settings menu of SplitNotes.
   
-Example:  
+Example with newline as separator:  
   
 >[Split1]  
 >these are some notes for split 1.  
@@ -37,7 +37,20 @@ Example:
 >As you can see a title in brackets is not neccesary.  
 >A simple new line is enough to separate notes for different splits.  
 >  
->Also som notes for split 3.  
+>Also some notes for split 3.  
+>You don't have to [ worry abut using brackets [ in the middle  of a row].  
+
+Example with "-end-" as separator:  
+  
+>[Split1]  
+>these are some notes for split 1.  
+>-end-  
+>These are some notes for split2.  
+>  
+>Now it is fine to use linebreaks in the middle of the notes.  
+>This will still be on the notes for split 2  
+>-end-  
+>Also some notes for split 3.  
 >You don't have to [ worry abut using brackets [ in the middle  of a row].  
   
 **Load Notes**  
@@ -47,7 +60,7 @@ Example:
   
 **Change Settings**  
 1. Right-Click in SplitNotes and select "Settings"  
-2. The settings menu will show up. Here you can set things like font, font size, text and background color and the server port. 
+2. The settings menu will show up. Here you can set things like font, font size, text and background color, split separator and the server port. 
   
 ## Features  
   
