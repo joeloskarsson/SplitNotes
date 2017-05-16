@@ -1,0 +1,6 @@
+--- Build Instructions ---
+Using py2exe and python 3.4
+
+From the main directory run "python setup_exe.py py2exe".
+This creates a new "dist" folder with the SplitNotes .exe and needed data files.
+Zip up this folder for distribution.
